@@ -6,7 +6,7 @@ const generateUniqueId = () => {
 };
 
 // 创建ws服务器
-const wss = new Websocket.Server({ host: "0.0.0.0", port: 3001 });
+const wss = new Websocket.WebSocketServer({ port: 3001 });
 
 // 创建连接池
 const clients = new Map();
@@ -45,7 +45,8 @@ function handleMessage(senderId, data) {
     case "offer":
     case "answer":
     case "candidate":
-    case "stop":
+    case "puase":
+    case "resume":
     case "bye":
       if (clients.has(targetId)) {
         clients.get(targetId).send(

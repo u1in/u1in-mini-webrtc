@@ -40,7 +40,6 @@ const initWs = () => {
     // 回应信令，说明我们申请连接有回应了
     if (data.type === "answer") {
       if (senderPeer) {
-        console.log(new Date().getTime(), "answer")
         await senderPeer.setRemoteDescription(data.payload);
         return;
       }
@@ -52,10 +51,17 @@ const initWs = () => {
         return;
       }
     }
-    // 中止信令，说明对方停止传输媒体流
-    if (data.type === "stop") {
+    // 中止信令，说明对方暂停传输媒体流
+    if (data.type === "pause") {
       if (senderPeer) {
-        createRemoteStopDom(senderId);
+        createRemotePauseDom(senderId);
+        return;
+      }
+    }
+    // 恢复信令，说明对方恢复传输媒体流
+    if (data.type === "resume") {
+      if (senderPeer) {
+        createReconnectPeerDom(senderId);
         return;
       }
     }
@@ -95,7 +101,7 @@ const createPeer = (targetId) => {
   // 注意这里，网络建立后也会触发一次事件，但是candidate为null，注意不要发送这个
   currentPeer.onicecandidate = ({ candidate }) => {
     if (candidate) {
-      console.log(new Date().getTime(), "onicecandidate")
+      console.log(new Date().getTime(), "onicecandidate");
       ws.send(
         JSON.stringify({
           type: "candidate",
@@ -116,21 +122,28 @@ const createPeer = (targetId) => {
 };
 
 // 移除媒体轨道，中止连接，网络信道还在
-const stopPeer = (targetId) => {
+const pauseVideoTrack = (targetId) => {
   const targetPeer = peers.get(targetId);
   targetPeer.getSenders().map((sender) => {
-    targetPeer.removeTrack(sender);
+    sender.replaceTrack(null);
   });
+  ws.send(
+    JSON.stringify({
+      type: "pause",
+      targetId,
+      payload: null,
+    })
+  );
 };
 
 // 恢复媒体传输（尚未实现）
-const reconnectPeer = async (targetId) => {
-  // const targetPeer = peers.get(targetId);
-  // videoStream.getTracks().map((track) => {
-  //   targetPeer.addTrack(track, videoStream);
-  // });
-  // const offer = await targetPeer.createOffer();
-  // await targetPeer.setLocalDescription(offer);
+const resumeVideoTrack = (targetId) => {
+  const targetPeer = peers.get(targetId);
+  const tracks = videoStream.getTracks();
+  targetPeer.getSenders().map((sender, index) => {
+    sender.replaceTrack(tracks[index]);
+  });
+  createReconnectPeerDom(targetId);
 };
 
 // 销毁连接，移除dom
@@ -191,7 +204,7 @@ const connect = () => {
 
 // 中止连接函数
 const stop = (targetId) => {
-  stopPeer(targetId);
+  pauseVideoTrack(targetId);
   createLocalPeerStopDom(targetId);
 };
 
@@ -210,9 +223,7 @@ const bye = (targetId) => {
 
 // 恢复连接函数
 const reconnect = (targetId) => {
-  alert("还未实现");
-  // reconnectPeer(targetId);
-  // createReconnectPeerDom(targetId);
+  resumeVideoTrack(targetId);
 };
 
 // 初始化函数

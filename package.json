@@ -4,7 +4,7 @@
   "description": "",
   "main": "static.js",
   "scripts": {
-    "start": "npm-run-all static signal",
+    "start": "run-p static signal",
     "static": "node static.js",
     "signal": "node signal.js"
   },

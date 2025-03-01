@@ -22,7 +22,7 @@ const createRemoteVideoDom = (event, senderId) => {
   document.querySelector(`#id-${senderId} video`).srcObject = event.streams[0];
 };
 
-const createRemoteStopDom = (targetId) => {
+const createRemotePauseDom = (targetId) => {
   if (document.querySelector(`#id-${targetId} .remote-disconnect`)) {
     document.querySelector(`#id-${targetId} .remote-disconnect`).style.display =
       "flex";
