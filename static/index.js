@@ -40,6 +40,7 @@ const initWs = () => {
     // 回应信令，说明我们申请连接有回应了
     if (data.type === "answer") {
       if (senderPeer) {
+        console.log(new Date().getTime(), "answer")
         await senderPeer.setRemoteDescription(data.payload);
         return;
       }
@@ -91,8 +92,10 @@ const createPeer = (targetId) => {
   }
 
   // 添加信令候选的回调，当连接生成好网络候选方案时候通知对方
+  // 注意这里，网络建立后也会触发一次事件，但是candidate为null，注意不要发送这个
   currentPeer.onicecandidate = ({ candidate }) => {
     if (candidate) {
+      console.log(new Date().getTime(), "onicecandidate")
       ws.send(
         JSON.stringify({
           type: "candidate",
