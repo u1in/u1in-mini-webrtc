@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <div id="id"></div>
+    <div>
+      <input type="text" id="targetId" placeholder="对方id" />
+      <button id="connectBtn" onclick="connect()">连接</button>
+    </div>
+    <div>
+      <textarea id="sendText"></textarea>
+      <button id="sendBtn" onclick="send()">发送</button>
+    </div>
+    <div>收到信息：</div>
+    <div class="chat-list"></div>
+    <script src="./index.js"></script>
+  </body>
+</html>
